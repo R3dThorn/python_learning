@@ -25,9 +25,9 @@ pygame.display.set_caption("Snake Tutorial")
 
 clock = pygame.time.Clock()
 snake_block = 10
-snake_speed=15
+snake_speed = 15
 
-font_style = pygame.font.SysFont("bahnschrift",25)
+font_style = pygame.font.SysFont("bahnschrift", 25)
 score_font = pygame.font.SysFont(None, 35)
 
 def score(score):
@@ -52,6 +52,8 @@ def gameLoop(): # Function declaration
     x1_change = 0
     y1_change = 0
     # Prevent the player from killing themselves after reaching length > 3
+    # bug: still possible to kill self with ample key mashing.
+    # going to add collision detection on first block of snake head and prevent reversing passage to that location instead
     left_disable = False
     right_disable = False
     down_disable = False
@@ -62,27 +64,7 @@ def gameLoop(): # Function declaration
 
     foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
     foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
-    # scope is wrong with function, research
-    def key_disable(key_input):
-        if key_input == "RIGHT":
-            left_disable = True
-            up_disable = False
-            down_disable = False
-            print("left", left_disable)
-        elif key_input == "LEFT":
-            right_disable = True
-            up_disable = False
-            down_disable = False
-            print("left", left_disable)
-        elif key_input == "DOWN":
-            left_disable = False
-            right_disable = False
-            up_disable = True
-        elif key_input == "UP":
-            left_disable = False
-            right_disable = False
-            down_disable = True
-
+    
     while not game_over:
 
         while game_close == True:
@@ -105,22 +87,32 @@ def gameLoop(): # Function declaration
             if event.type == pygame.QUIT:
                 game_over = True
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT and not left_disable == True:
+                #if bool(snake_List[1]):
+                #    print(snake_List[1])
+                if event.key == pygame.K_LEFT and left_disable != True:
                     x1_change = -snake_block
                     y1_change = 0
-                    key_disable("LEFT")
+                    right_disable = True
+                    up_disable = False
+                    down_disable = False
                 elif event.key == pygame.K_RIGHT and right_disable != True:
                     x1_change = snake_block
                     y1_change = 0
-                    key_disable("RIGHT")
+                    left_disable = True
+                    up_disable = False
+                    down_disable = False
                 elif event.key == pygame.K_UP and up_disable != True:
                     y1_change = -snake_block
                     x1_change = 0
-                    key_disable("UP")
+                    down_disable = True
+                    left_disable = False
+                    right_disable = False
                 elif event.key == pygame.K_DOWN and down_disable != True:
                     y1_change = snake_block
                     x1_change = 0
-                    key_disable("DOWN")
+                    up_disable = True
+                    left_disable = False
+                    right_disable = False
 
         if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
             game_close = True
